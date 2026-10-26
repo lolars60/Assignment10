@@ -1,128 +1,88 @@
-# Assignment 10: NBA Player Database API
+# Assignment 10: NBA Player Database
 
-This project creates and queries a SQLite database containing NBA player
-roster information for the 2026-27 season.
+## 1. Project Description
 
-The project uses the roster data in
-[`nba_players.csv`](./nba_players.csv). The CSV file includes:
+My database is about NBA players from the 2026-27 season. It stores each
+player's name, team, height, position, jersey number, nationality, and season.
 
-- Player ID
-- Player name
-- Team
-- Height
-- Position
-- Jersey number
-- Nationality
-- Season
+The purpose of the program is to let a user search and organize NBA player
+information. The program can answer questions such as:
 
-## Project files
+- What team does a player play for?
+- What position does a player play?
+- Who plays for a certain team?
+- Who plays a certain position?
+- Who are the tallest or shortest players?
+- How many players are in the database?
 
-- [`src/CreateNBADB.java`](./src/CreateNBADB.java) reads the CSV file and
-  creates `nba.db`.
-- [`src/NBAAPI.java`](./src/NBAAPI.java) provides the Java database API.
-- [`src/NBADriver.java`](./src/NBADriver.java) provides the interactive
-  console menu.
-- [`nba_players.csv`](./nba_players.csv) contains the roster data.
-- [`nba.db`](./nba.db) is the generated SQLite database.
-- [`doc/`](./doc/) contains the generated Javadoc documentation.
-- [`lib/sqlite-jdbc-3.53.4.0.jar`](./lib/sqlite-jdbc-3.53.4.0.jar) is the
-  SQLite JDBC dependency.
+The user interacts with the database through a menu in `NBADriver`. The menu
+uses methods from `NBAAPI` to perform the searches.
 
-## Part 1: Create the database
+## 2. Example Test Run
 
-`CreateNBADB` recreates the `Player` table and imports every record from the
-CSV file. It validates the CSV header, checks required values, and uses a
-transaction when inserting the data.
+This is an example of running the program, searching for LeBron James,
+displaying players by position, and then exiting.
 
-Compile the project from the project directory:
-
-```bash
-javac -cp "lib/sqlite-jdbc-3.53.4.0.jar" -d bin src/*.java
-```
-
-Create or refresh the database:
-
-```bash
-java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" CreateNBADB
-```
-
-The default input file is `nba_players.csv`. A different CSV file can be
-provided as the first argument:
-
-```bash
-java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" CreateNBADB path/to/players.csv
-```
-
-## Part 2: Java API
-
-`NBAAPI` manages the connection to `nba.db` and provides read-only methods
-that retrieve useful information:
-
-- `allPlayers()` returns every player ordered by team and name.
-- `findPlayers(String name)` searches for a player by name.
-- `playersOnTeam(String team)` returns players on a team.
-- `playersAtPosition(String position)` returns players at a position.
-- `playersFromNationality(String nationality)` returns players from a
-  nationality.
-- `playersByHeight(boolean tallestFirst)` sorts players by height.
-- `playersByNumber(boolean ascending)` sorts players by jersey number.
-- `teamCounts()` returns each team and its player count.
-- `playerCount()` returns the total number of players.
-
-The API uses prepared statements for search values and implements
-`AutoCloseable` so the database connection can be closed safely.
-
-## Part 3: Javadoc
-
-Public classes, methods, records, and record parameters in the API are
-documented with Javadoc comments.
-
-Generate the documentation in the required `doc/` directory:
-
-```bash
-rm -rf doc
-javadoc -d doc src/NBAAPI.java src/NBADriver.java
-```
-
-Open [`doc/index.html`](./doc/index.html) in a browser to view the generated
-documentation.
-
-## Part 4: Driver program
-
-`NBADriver` is a console-based program that allows the user to interact with
-the database through `NBAAPI`.
-
-Run the driver:
-
-```bash
-java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" NBADriver
-```
-
-The menu provides these options:
-
+```text
+NBA Player Database
 1. Find a player by name
 2. Display players on a team
 3. Display players by position
-4. List players from tallest to shortest
-5. List players from shortest to tallest
+4. List players tallest to shortest
+5. List players shortest to tallest
 6. List players by jersey number, low to high
 7. List players by jersey number, high to low
-8. Display the number of players
+8. Display player count
 9. Exit
+Enter your choice: 1
+Enter player name: LeBron James
 
-Player results are displayed in aligned columns containing the player name,
-team, height, position, jersey number, nationality, and season.
+Name                     Team                     Height   Position           Number   Nationality     Season
+-------------------------------------------------------------------------------------------------------------------
+LeBron James             Philadelphia 76ers       6-9      Forward            #23      Unknown         2026-27
+Results: 1
 
-## Complete setup
+NBA Player Database
+1. Find a player by name
+2. Display players on a team
+3. Display players by position
+4. List players tallest to shortest
+5. List players shortest to tallest
+6. List players by jersey number, low to high
+7. List players by jersey number, high to low
+8. Display player count
+9. Exit
+Enter your choice: 3
+Enter position: Center
 
-Run the following commands in order after cloning the repository:
+Name                     Team                     Height   Position           Number   Nationality     Season
+-------------------------------------------------------------------------------------------------------------------
+Nikola Jokic             Denver Nuggets           6-11     Center             #15      Unknown         2026-27
+Results: 1
 
-```bash
-javac -cp "lib/sqlite-jdbc-3.53.4.0.jar" -d bin src/*.java
-java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" CreateNBADB
-java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" NBADriver
+NBA Player Database
+1. Find a player by name
+2. Display players on a team
+3. Display players by position
+4. List players tallest to shortest
+5. List players shortest to tallest
+6. List players by jersey number, low to high
+7. List players by jersey number, high to low
+8. Display player count
+9. Exit
+Enter your choice: 9
+Goodbye.
 ```
 
-The project requires Java and the included SQLite JDBC JAR. No internet
-connection is required because the database is created from the local CSV
-file.
+## 3. AI Usage Statement
+
+I used GitHub Copilot as an AI tool while completing this assignment. I used
+it to help create sample database data, write SQL queries, develop the
+`NBAAPI` methods, create the menu in `NBADriver`, debug SQLite errors, format
+the console output, and write documentation.
+
+I reviewed and tested the generated code before including it in the project.
+I changed the database source from a live NBA website to a local CSV file
+because the website connection was unreliable. I also tested the program by
+compiling it, creating the database, searching for players, filtering by
+position, sorting players, and exiting through the menu.
