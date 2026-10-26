@@ -1,68 +1,128 @@
-## Getting Started
+# Assignment 10: NBA Player Database API
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+This project creates and queries a SQLite database containing NBA player
+roster information for the 2026-27 season.
 
-## Folder Structure
+The project uses the roster data in
+[`nba_players.csv`](./nba_players.csv). The CSV file includes:
 
-The workspace contains two folders by default, where:
+- Player ID
+- Player name
+- Team
+- Height
+- Position
+- Jersey number
+- Nationality
+- Season
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## Project files
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+- [`src/CreateNBADB.java`](./src/CreateNBADB.java) reads the CSV file and
+  creates `nba.db`.
+- [`src/NBAAPI.java`](./src/NBAAPI.java) provides the Java database API.
+- [`src/NBADriver.java`](./src/NBADriver.java) provides the interactive
+  console menu.
+- [`nba_players.csv`](./nba_players.csv) contains the roster data.
+- [`nba.db`](./nba.db) is the generated SQLite database.
+- [`doc/`](./doc/) contains the generated Javadoc documentation.
+- [`lib/sqlite-jdbc-3.53.4.0.jar`](./lib/sqlite-jdbc-3.53.4.0.jar) is the
+  SQLite JDBC dependency.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## Part 1: Create the database
 
-## Dependency Management
+`CreateNBADB` recreates the `Player` table and imports every record from the
+CSV file. It validates the CSV header, checks required values, and uses a
+transaction when inserting the data.
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
-
-## NBA roster database
-
-`CreateNBADB` creates `nba.db` from the local `nba_players.csv` file. The
-`Player` table includes `name`, `team`, `height`, `position`, `number`,
-`nationality`, and `season`. Running the program again replaces the table.
-Add or edit CSV rows to expand or update the roster without changing the Java
-code.
-
-Compile and run it from the project directory:
+Compile the project from the project directory:
 
 ```bash
-javac -cp "lib/sqlite-jdbc-3.53.4.0.jar" -d bin src/CreateNBADB.java
+javac -cp "lib/sqlite-jdbc-3.53.4.0.jar" -d bin src/*.java
+```
+
+Create or refresh the database:
+
+```bash
 java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" CreateNBADB
 ```
 
-You can also provide a different CSV path:
+The default input file is `nba_players.csv`. A different CSV file can be
+provided as the first argument:
 
 ```bash
 java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" CreateNBADB path/to/players.csv
 ```
 
-The CSV contains the 2026-27 roster records supplied in the local roster
-source file. Its required columns are:
-`player_id,name,team,height,position,number,nationality,season`.
+## Part 2: Java API
 
-## NBA query API
+`NBAAPI` manages the connection to `nba.db` and provides read-only methods
+that retrieve useful information:
 
-`NBAAPI` provides read-only Java methods for searching the generated database:
-find players by name, team, position, or nationality; sort players by height or
-jersey number; count players; and count players on each team. It uses prepared
-statements for all user-provided search values.
+- `allPlayers()` returns every player ordered by team and name.
+- `findPlayers(String name)` searches for a player by name.
+- `playersOnTeam(String team)` returns players on a team.
+- `playersAtPosition(String position)` returns players at a position.
+- `playersFromNationality(String nationality)` returns players from a
+  nationality.
+- `playersByHeight(boolean tallestFirst)` sorts players by height.
+- `playersByNumber(boolean ascending)` sorts players by jersey number.
+- `teamCounts()` returns each team and its player count.
+- `playerCount()` returns the total number of players.
 
-`NBADriver` is the interactive console program for the assignment. It prompts
-the user with a menu and supports player-name searches, team searches, position
-searches, height ordering, and jersey-number ordering.
+The API uses prepared statements for search values and implements
+`AutoCloseable` so the database connection can be closed safely.
 
-Example commands:
+## Part 3: Javadoc
+
+Public classes, methods, records, and record parameters in the API are
+documented with Javadoc comments.
+
+Generate the documentation in the required `doc/` directory:
 
 ```bash
-javac -cp "lib/sqlite-jdbc-3.53.4.0.jar" -d bin src/*.java
+rm -rf doc
+javadoc -d doc src/NBAAPI.java src/NBADriver.java
+```
+
+Open [`doc/index.html`](./doc/index.html) in a browser to view the generated
+documentation.
+
+## Part 4: Driver program
+
+`NBADriver` is a console-based program that allows the user to interact with
+the database through `NBAAPI`.
+
+Run the driver:
+
+```bash
 java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" NBADriver
 ```
 
-The API expects `nba.db` to exist, so run `CreateNBADB` first. Generate the
-Javadoc documentation with:
+The menu provides these options:
+
+1. Find a player by name
+2. Display players on a team
+3. Display players by position
+4. List players from tallest to shortest
+5. List players from shortest to tallest
+6. List players by jersey number, low to high
+7. List players by jersey number, high to low
+8. Display the number of players
+9. Exit
+
+Player results are displayed in aligned columns containing the player name,
+team, height, position, jersey number, nationality, and season.
+
+## Complete setup
+
+Run the following commands in order after cloning the repository:
 
 ```bash
-javadoc -d doc src/NBAAPI.java src/NBADriver.java
+javac -cp "lib/sqlite-jdbc-3.53.4.0.jar" -d bin src/*.java
+java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" CreateNBADB
+java -cp "bin:lib/sqlite-jdbc-3.53.4.0.jar" NBADriver
 ```
+
+The project requires Java and the included SQLite JDBC JAR. No internet
+connection is required because the database is created from the local CSV
+file.
